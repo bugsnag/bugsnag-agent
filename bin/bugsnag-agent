@@ -4,7 +4,6 @@ from optparse import OptionParser
 from multiprocessing import Process
 from ConfigParser import RawConfigParser
 from Queue import Queue
-from urlparse import urlparse
 from time import sleep
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
