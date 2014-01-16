@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from optparse import OptionParser
 from multiprocessing import Process
 from ConfigParser import RawConfigParser
@@ -8,7 +10,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 from thread import interrupt_main
 from traceback import print_exception
-import httplib
+import urllib2
 import sys
 
 class BugsnagAgent(object):
@@ -50,6 +52,7 @@ class BugsnagAgent(object):
         parser.add_option(
             "-p", "--port",
             dest="port",
+            type="int",
             help=("the port to bind to (default %s)" % default['port'])
         )
         parser.add_option(
@@ -70,16 +73,10 @@ class BugsnagAgent(object):
         else:
             self.endpoint = default["endpoint"]
 
-        endpoint = urlparse(self.endpoint)
-        if endpoint.scheme == 'https':
-            self.connection = httplib.HTTPSConnection(endpoint.hostname, endpoint.port or 443)
-        else:
-            self.connection = httplib.HTTPConnection(endpoint.hostname, endpoint.port or 80)
-
         if options.port is not None:
             self.port = options.port
         elif config.has_option("bugsnag", "port"):
-            self.port = config.get("bugsnag", "port")
+            self.port = config.getint("bugsnag", "port")
         else:
             self.port = default["port"]
 
@@ -137,14 +134,12 @@ class BugsnagAgent(object):
             print "Sending %s bytes (%s/%s)" % (len(body), self.queue.qsize(), self.queue.maxsize)
 
             try:
-                self.connection.request("POST", "/", body)
-                self.connection.getresponse()
-                self.connection.close()
+                req = urllib2.Request(self.endpoint, body)
+                urllib2.urlopen(req).read()
             except:
                 print "Cannot send request. Retrying in 5 seconds"
                 print_exception(*sys.exc_info())
                 print "continuing..."
-                self.connection.close()
                 self.enqueue(body)
                 sleep(5)
 
