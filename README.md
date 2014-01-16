@@ -88,3 +88,9 @@ All the options can also be set directly using command line flags:
 ```
 bugsnag-agent --port 3829 --listen 127.0.0.1 --endpoint https://notify.bugsnag.com/
 ```
+
+## Meta
+`bugsnag-agent` is copyright under the MIT license. See LICENSE.MIT for details.
+
+Bug reports and pull requests are welcome.
+
