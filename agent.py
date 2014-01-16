@@ -1,0 +1,193 @@
+from optparse import OptionParser
+from multiprocessing import Process
+from ConfigParser import RawConfigParser
+from Queue import Queue
+from urlparse import urlparse
+from time import sleep
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from threading import Thread
+from thread import interrupt_main
+from traceback import print_exception
+import httplib
+import sys
+
+class BugsnagAgent(object):
+    """
+        The BugsnagAgent sits on your server and forwards exception payloads to
+        https://notify.bugsnag.com/.
+
+        It's designed to protect you against any latency spikes that may
+        occur talking accross the internet in an exception handler.
+    """
+
+    def __init__(self):
+        self.parse_config()
+        self.queue = Queue(1000)
+
+    def parse_config(self):
+        """
+            initializes self.port, self.listen, self.endpoint and self.connection
+        """
+
+        default = {
+            "endpoint": "https://notify.bugsnag.com/",
+            "port": 3829,
+            "listen": "127.0.0.1",
+        }
+
+        parser = OptionParser()
+        parser.add_option(
+            "-c", "--config",
+            dest="config_file",
+            default="/etc/bugsnag.conf",
+            help="The path to your config file (default /etc/bugsnag.conf)"
+        )
+        parser.add_option(
+            "-e", "--endpoint",
+            dest="endpoint",
+            help=("the URL of your Bugsnag server (default %s)" % default['endpoint'])
+        )
+        parser.add_option(
+            "-p", "--port",
+            dest="port",
+            help=("the port to bind to (default %s)" % default['port'])
+        )
+        parser.add_option(
+            "-l", "--listen",
+            dest="listen",
+            help=("the ip to listen to (use 0.0.0.0 to allow anyone to connect, default %s)" % default["listen"])
+        )
+
+        (options, args) = parser.parse_args()
+
+        config = RawConfigParser()
+        config.read(options.config_file)
+
+        if options.endpoint is not None:
+            self.endpoint = options.endpoint
+        elif config.has_option("bugsnag", "endpoint"):
+            self.endpoint = config.get("bugsnag", "endpoint")
+        else:
+            self.endpoint = default["endpoint"]
+
+        endpoint = urlparse(self.endpoint)
+        if endpoint.scheme == 'https':
+            self.connection = httplib.HTTPSConnection(endpoint.hostname, endpoint.port or 443)
+        else:
+            self.connection = httplib.HTTPConnection(endpoint.hostname, endpoint.port or 80)
+
+        if options.port is not None:
+            self.port = options.port
+        elif config.has_option("bugsnag", "port"):
+            self.port = config.get("bugsnag", "port")
+        else:
+            self.port = default["port"]
+
+        if options.listen is not None:
+            self.listen = options.listen
+        elif config.has_option("bugsnag", "listen"):
+            self.listen = config.get("bugsnag", "listen")
+        else:
+            self.listen = default['listen']
+
+    def start(self):
+        """
+            Run the agent, and wait for a SIGINT or SIGTERM.
+        """
+        try:
+            server = Thread(target=self._thread(self._server), name="server")
+            client = Thread(target=self._thread(self._client), name="client")
+            server.setDaemon(True)
+            client.setDaemon(True)
+            server.start()
+            client.start()
+
+            print "Bugsnag Agent started. http://%s:%s -> %s" % (self.listen, self.port, self.endpoint)
+            while True:
+                sleep(1000)
+        except KeyboardInterrupt:
+            # give threads time to print exceptions
+            sleep(0.1)
+
+    def enqueue(self, body):
+        """
+            Add a new payload to the queue.
+        """
+        try:
+            self.queue.put_nowait(body)
+            print "Enqueued %s bytes (%s/%s)" % (len(body), self.queue.qsize(), self.queue.maxsize)
+        except:
+            print "Discarding report as queue is full: %s" % (repr(body))
+
+    def _server(self):
+        """
+            Run the HTTP server on (self.listen, self.port) that puts
+            payloads into the queue.
+        """
+        server = HTTPServer((self.listen, self.port), BugsnagHTTPRequestHandler)
+        server.bugsnag = self
+        server.serve_forever()
+
+    def _client(self):
+        """
+            Continually monitor the queue and send anything in it to Bugsnag.
+        """
+        while True:
+            body = self.queue.get(True)
+            print "Sending %s bytes (%s/%s)" % (len(body), self.queue.qsize(), self.queue.maxsize)
+
+            try:
+                self.connection.request("POST", "/", body)
+                self.connection.getresponse()
+                self.connection.close()
+            except:
+                print "Cannot send request. Retrying in 5 seconds"
+                print_exception(*sys.exc_info())
+                print "continuing..."
+                self.connection.close()
+                self.enqueue(body)
+                sleep(5)
+
+    def _thread(self, target):
+        def run():
+            try:
+                target()
+            except:
+                interrupt_main()
+                print_exception(*sys.exc_info())
+            pass
+        return run
+
+class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        """
+            Show the current status of the agent
+        """
+        self.send_response(200)
+        self.end_headers()
+        bugsnag = self.server.bugsnag
+        self.wfile.write("Bugsnag agent: %s:%s -> %s (%s/%s)" % (bugsnag.listen, bugsnag.port, bugsnag.endpoint, bugsnag.queue.qsize(), bugsnag.queue.maxsize))
+
+    def do_POST(self):
+        """
+            Accept a payload for forwarding
+        """
+        bugsnag = self.server.bugsnag
+        body = self.rfile.read(int(self.headers['Content-Length']))
+        bugsnag.enqueue(body)
+
+        response = ("OK %s:%s -> %s (%s/%s)\n" % (bugsnag.listen, bugsnag.port, bugsnag.endpoint, bugsnag.queue.qsize(), bugsnag.queue.maxsize))
+
+        try:
+            self.send_response(200)
+            self.send_header('Content-Length', len(response))
+            self.end_headers()
+            self.wfile.write(response)
+        except:
+            print "Client disconnected before waiting for response"
+            print_exception(*sys.exc_info())
+            print "continuing..."
+
+if __name__ == "__main__":
+    BugsnagAgent().start()
