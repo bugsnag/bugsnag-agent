@@ -7,12 +7,12 @@ handler.
 ## Getting started
 
 First you need to download the `bugsnag-agent` from
-[here](https://raw.github.com/bugsnag/bugsnag-agent/master/bin/bugsnag-agent)
+[here](http://git.io/q2AUSA)
 and make it executable on your server. For example:
 
 ```bash
-curl https://raw.github.com/bugsnag/bugsnag-agent/master/bin/bugsnag-agent | sudo tee /usr/bin/bugsnag-agent
-chmod +x /usr/bin/bugsnag-agent
+curl -L http://git.io/q2AUSA | sudo tee /usr/bin/bugsnag-agent
+sudo chmod +x /usr/bin/bugsnag-agent
 ```
 
 Next you need to run it.
@@ -38,7 +38,7 @@ $bugsnag.setUseSSL(false);
 
 ## Upstart
 
-If you'd like to ensure Bugsnag is always running, you can use the following `upstart` script:
+If you'd like to ensure Bugsnag is always running, you can save the following `upstart` script as `/etc/init/bugsnag.conf` and then run `sudo start bugsnag`.
 
 ```upstart
 #!upstart
@@ -58,9 +58,10 @@ end script
 
 ## Configuration
 
-`bugsnag-agent` reads /etc/bugsnag.conf by default. The default copy of this file is:
+`bugsnag-agent` reads /etc/bugsnag.conf if it exists. The default configuration is:
 
 ```conf
+# Default configuration for bugsnag.
 [bugsnag]
 
 # The port to listen on.

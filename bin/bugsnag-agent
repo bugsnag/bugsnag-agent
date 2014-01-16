@@ -161,7 +161,7 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         bugsnag = self.server.bugsnag
-        self.wfile.write("Bugsnag agent: %s:%s -> %s (%s/%s)" % (bugsnag.listen, bugsnag.port, bugsnag.endpoint, bugsnag.queue.qsize(), bugsnag.queue.maxsize))
+        self.wfile.write("Bugsnag agent: %s:%s -> %s (%s/%s)\n" % (bugsnag.listen, bugsnag.port, bugsnag.endpoint, bugsnag.queue.qsize(), bugsnag.queue.maxsize))
 
     def do_POST(self):
         """
