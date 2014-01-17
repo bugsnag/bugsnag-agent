@@ -1,4 +1,3 @@
-
 The Bugsnag agent forwards reports from your server to bugsnag.com or an
 on-premise Bugsnag installation. It's used to avoid any latency impact that
 might occur if you need to make a call over the network in every exception
@@ -26,7 +25,7 @@ You can verify that it's running using curl in another terminal:
 
 ```bash
 $ curl http://127.0.0.1:3829
-Bugsnag agent: 127.0.0.1:4000 -> https://notify.bugsnag.com/ (0/1000)%
+Bugsnag agent: 127.0.0.1:3829 -> https://notify.bugsnag.com/ (0/1000)%
 ```
 
 Finally you need to configure the endpoint of your Bugsnag apps to be `http://localhost:3829`. This differs per [notifier](https://bugsnag.com/docs/notifier), but for example PHP is:
