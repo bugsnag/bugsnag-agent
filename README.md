@@ -50,8 +50,10 @@ stop on shutdown
 respawn
 respawn limit 99 5
 
+console log
+
 script
-    exec bugsnag-agent 2>&1 1>/var/log/bugsnag.log
+    exec bugsnag-agent
 end script
 ```
 
