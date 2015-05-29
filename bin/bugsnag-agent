@@ -92,11 +92,12 @@ class BugsnagAgent(object):
         """
         try:
             server = Thread(target=self._thread(self._server), name="server")
-            client = Thread(target=self._thread(self._client), name="client")
             server.setDaemon(True)
-            client.setDaemon(True)
             server.start()
-            client.start()
+            for i in range(0, 10):
+                client = Thread(target=self._thread(self._client), name="client")
+                client.setDaemon(True)
+                client.start()
 
             print "Bugsnag Agent started. http://%s:%s -> %s" % (self.listen, self.port, self.endpoint)
             while True:
