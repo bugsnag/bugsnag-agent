@@ -11,6 +11,13 @@ from thread import interrupt_main
 from traceback import print_exception
 import urllib2
 import sys
+import signal
+
+def signal_term_handler(signal, frame):
+    print 'got SIGTERM'
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, signal_term_handler)
 
 class BugsnagAgent(object):
     """
