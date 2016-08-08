@@ -90,7 +90,7 @@ bugsnag-agent -c /usr/local/etc/bugsnag.conf
 All the options can also be set directly using command line flags:
 
 ```
-bugsnag-agent --port 3829 --listen 127.0.0.1 --endpoint https://notify.bugsnag.com/
+bugsnag-agent --port 3829 --listen 127.0.0.1 --endpoint https://notify.bugsnag.com/ --log-level INFO
 ```
 
 ## Meta

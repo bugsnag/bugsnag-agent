@@ -124,7 +124,7 @@ class BugsnagAgent(object):
             while True:
                 sleep(1000)
         except KeyboardInterrupt:
-            # give threads time to logger.info(exceptions)
+            # give threads time to print exceptions
             sleep(0.1)
 
     def enqueue(self, body):
