@@ -162,11 +162,12 @@ class BugsnagAgent(object):
         while True:
             body = self.queue.get(True)
             logger.info("Sending {body_length} bytes ({queue_size}/"
-                        "{queue_max_size})".format(
-                            body_length=len(body),
-                            queue_size=self.queue.qsize(),
-                            queue_max_size=self.queue.maxsize
-                        ))
+                "{queue_max_size})".format(
+                    body_length=len(body),
+                    queue_size=self.queue.qsize(),
+                    queue_max_size=self.queue.maxsize
+                )
+            )
 
             try:
                 req = urllib2.Request(self.endpoint, body)
