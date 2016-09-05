@@ -76,6 +76,9 @@ listen = 127.0.0.1
 # The endpoint to send exceptions to. This can be another `bugsnag-agent`,
 # https://notify.bugsnag.com/ or your local on-premise Bugsnag.
 endpoint = https://notify.bugsnag.com/
+
+# Logging verbosity
+log_level = INFO
 ```
 
 You can change which configuration file is used with the `-c` parameter:
@@ -87,7 +90,7 @@ bugsnag-agent -c /usr/local/etc/bugsnag.conf
 All the options can also be set directly using command line flags:
 
 ```
-bugsnag-agent --port 3829 --listen 127.0.0.1 --endpoint https://notify.bugsnag.com/
+bugsnag-agent --port 3829 --listen 127.0.0.1 --endpoint https://notify.bugsnag.com/ --log-level INFO
 ```
 
 ## Meta
