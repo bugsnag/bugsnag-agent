@@ -98,6 +98,9 @@ class BugsnagAgent(object):
             else:
                 setattr(self, opt, self.DEFAULTS[opt])
 
+        # Port must be an int (only strings coming from RawConfigParser)
+        self.port = int(self.port)
+
     def start(self):
         """
         Run the agent, and wait for a SIGINT or SIGTERM.
