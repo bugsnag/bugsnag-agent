@@ -24,7 +24,7 @@ class BugsnagAgent(object):
     https://notify.bugsnag.com/.
 
     It's designed to protect you against any latency spikes that may
-    occur talking accross the internet in an exception handler.
+    occur talking across the internet in an exception handler.
     """
     DEFAULTS = {
         'endpoint': 'https://notify.bugsnag.com/',
