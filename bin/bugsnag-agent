@@ -90,11 +90,16 @@ class BugsnagAgent(object):
         # 1 - Arguments
         # 2 - Config file
         # 3 - Internal defaults
+        conf_opts = {"port": config.getint,
+                     "endpoint": config.get,
+                     "listen": config.get,
+                     "log_level": config.get,
+                     "ip": config.get}
         for opt, _ in vars(args).iteritems():
             if getattr(args, opt) is not None:
                 setattr(self, opt, getattr(args, opt))
-            elif config.has_option('bugsnag', opt):
-                setattr(self, opt, config.get('bugsnag', opt))
+            elif config.has_option('bugsnag', opt) and opt in conf_opts:
+                setattr(self, opt, conf_opts[opt]('bugsnag', opt))
             else:
                 setattr(self, opt, self.DEFAULTS[opt])
 
