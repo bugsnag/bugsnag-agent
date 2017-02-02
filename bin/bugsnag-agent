@@ -200,7 +200,7 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         bugsnag = self.server.bugsnag
         self.wfile.write("Bugsnag agent: {listen}:{port} -> {endpoint} " \
-            "({queue_size}/{max_queue_size})\n".format(
+            "({queue_size}/{queue_max_size})\n".format(
                 listen=bugsnag.listen,
                 port=bugsnag.port,
                 endpoint=bugsnag.endpoint,
