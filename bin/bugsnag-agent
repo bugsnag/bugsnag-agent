@@ -176,13 +176,20 @@ class BugsnagAgent(object):
 
             try:
                 req = urllib2.Request(self.endpoint, body)
-                urllib2.urlopen(req).read()
-            except:
-                logger.info('Cannot send request. Retrying in 5 seconds')
-                print_exception(*sys.exc_info())
-                logger.info('Continuing...')
-                self.enqueue(body)
-                sleep(5)
+                res = urllib2.urlopen(req)
+                res.read()
+            except urllib2.URLError as e:
+                if hasattr(e, 'code') and 400 <= e.code < 500:
+                    logger.warning('Bad response, removing report ({code}: {msg})'.format(
+                        code=e.code,
+                        msg=e.msg
+                    ))
+                else:
+                    logger.warning('Cannot send request. Retrying in 5 seconds')
+                    if logger.isEnabledFor(logging.DEBUG):
+                        print_exception(*sys.exc_info())
+                    sleep(5)
+                    self.enqueue(body)
 
     def _thread(self, target):
         def run():
