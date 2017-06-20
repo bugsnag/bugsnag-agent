@@ -10,8 +10,7 @@ First you need to download the `bugsnag-agent` from
 and make it executable on your server. For example:
 
 ```bash
-curl -L http://git.io/q2AUSA | sudo tee /usr/bin/bugsnag-agent
-sudo chmod +x /usr/bin/bugsnag-agent
+$ pip install bugsnag-agent
 ```
 
 Next you need to run it.
