@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import urllib2
 from argparse import ArgumentParser
@@ -249,4 +247,8 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
             logger.info('Continuing...')
 
 if __name__ == '__main__':
+    BugsnagAgent().start()
+
+
+def main():
     BugsnagAgent().start()
