@@ -179,7 +179,7 @@ class BugsnagAgent(object):
                 res = urllib2.urlopen(req)
                 res.read()
             except urllib2.URLError as e:
-                if hasattr(e, 'code') and 400 <= e.code < 500:
+                if hasattr(e, 'code') and e.code in (400, 500):
                     logger.warning('Bad response, removing report ({code}: {msg})'.format(
                         code=e.code,
                         msg=e.msg
