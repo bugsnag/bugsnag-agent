@@ -56,6 +56,31 @@ script
 end script
 ```
 
+## Systemd
+
+If you'd like to configure Bugsnag to be managed by `systemd` instead, drop the following into `/etc/systemd/system/bugsnag-agent.service`:
+
+```
+[Unit]
+Description="Bugsnag Agent"
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/bugsnag-agent
+
+[Install]
+WantedBy=multi-user.target
+```
+
+After that, reload the `systemd` daemon, enable the service (so that it runs at boot) and start it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable bugsnag-agent.service
+sudo systemctl start bugsnag-agent.service
+```
+
 ## Configuration
 
 `bugsnag-agent` reads /etc/bugsnag.conf if it exists. The default configuration is:
@@ -96,4 +121,3 @@ bugsnag-agent --port 3829 --listen 127.0.0.1 --endpoint https://notify.bugsnag.c
 `bugsnag-agent` is copyright under the MIT license. See LICENSE.MIT for details.
 
 Bug reports and pull requests are welcome.
-
