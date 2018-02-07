@@ -32,6 +32,12 @@ class BugsnagAgent(object):
         'queue_length': 1000
     }
 
+    FORWARDED_HEADERS = [
+        'bugsnag-sent-at',
+        'bugsnag-api-key',
+        'bugsnag-payload-version'
+    ]
+
     def __init__(self):
         self.parse_config()
         self.queue = Queue(self.DEFAULTS['queue_length'])
@@ -130,12 +136,15 @@ class BugsnagAgent(object):
             # give threads time to print exceptions
             sleep(0.1)
 
-    def enqueue(self, body):
+    def enqueue(self, body, headers={}):
         """
         Add a new payload to the queue.
         """
         try:
-            self.queue.put_nowait(body)
+            self.queue.put_nowait({
+                'body':body,
+                'headers':headers
+            })
 
             logger.info("Enqueued {body_length} bytes "
                         "({queue_size}/{queue_max_size})".format(
@@ -163,7 +172,9 @@ class BugsnagAgent(object):
         Continually monitor the queue and send anything in it to Bugsnag.
         """
         while True:
-            body = self.queue.get(True)
+            request = self.queue.get(True)
+            body = request['body']
+            headers = request['headers']
             logger.info("Sending {body_length} bytes ({queue_size}/"
                 "{queue_max_size})".format(
                     body_length=len(body),
@@ -173,7 +184,7 @@ class BugsnagAgent(object):
             )
 
             try:
-                req = urllib2.Request(self.endpoint, body)
+                req = urllib2.Request(self.endpoint, body, headers)
                 res = urllib2.urlopen(req)
                 res.read()
             except urllib2.URLError as e:
@@ -225,7 +236,12 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
         """
         bugsnag = self.server.bugsnag
         body = self.rfile.read(int(self.headers['Content-Length']))
-        bugsnag.enqueue(body)
+        headers = {}
+        for key, value in self.headers.items():
+            if key.lower() in BugsnagAgent.FORWARDED_HEADERS:
+                headers[key] = value
+
+        bugsnag.enqueue(body=body, headers=headers)
 
         response = "OK {ip}:{port} -> {endpoint} " \
             "({queue_size}/{queue_max_size})\n".format(
