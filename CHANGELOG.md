@@ -1,3 +1,10 @@
+## 1.2.0
+
+### Enhancements
+
+* Added support for required Bugsnag header forwarding
+  [#18](https://github.com/bugsnag/bugsnag-agent/pull/18)
+
 ## 1.1.0
 
 Package for PyPI
