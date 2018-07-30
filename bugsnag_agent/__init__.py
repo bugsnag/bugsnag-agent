@@ -228,6 +228,7 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
         Show the current status of the agent
         """
         self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         bugsnag = self.server.bugsnag
         self.wfile.write("Bugsnag agent: {listen}:{port} -> {endpoint} " \
@@ -264,6 +265,7 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
 
         try:
             self.send_response(200)
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-Length', len(response))
             self.end_headers()
             self.wfile.write(response)
