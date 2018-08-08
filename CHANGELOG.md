@@ -1,3 +1,10 @@
+## 1.2.1
+
+### Enhancements
+
+* Added support for CORS for agents running in different host
+  [#20](https://github.com/bugsnag/bugsnag-agent/pull/20)
+
 ## 1.2.0
 
 ### Enhancements

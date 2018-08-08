@@ -213,11 +213,22 @@ class BugsnagAgent(object):
 
 class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
 
+    def do_OPTIONS(self):
+        """
+        Enable CORS while running on a different host
+        """
+        self.send_response(200, "ok")
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS, POST, HEAD')
+        self.send_header("Access-Control-Allow-Headers", "*")
+        self.end_headers()
+
     def do_GET(self):
         """
         Show the current status of the agent
         """
         self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         bugsnag = self.server.bugsnag
         self.wfile.write("Bugsnag agent: {listen}:{port} -> {endpoint} " \
@@ -254,6 +265,7 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
 
         try:
             self.send_response(200)
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-Length', len(response))
             self.end_headers()
             self.wfile.write(response)
