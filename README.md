@@ -3,11 +3,11 @@ on-premise Bugsnag installation. It's used to avoid any latency impact that
 might occur if you need to make a call over the network in every exception
 handler.
 
+:warning: Please note that `bugsnag-agent` is compatible with Python 2.6-2.7
+
 ## Getting started
 
-First you need to download the `bugsnag-agent` from
-[here](http://git.io/q2AUSA)
-and make it executable on your server. For example:
+First you need to install the `bugsnag-agent` binary, and make it executable on your server:
 
 ```bash
 $ pip install bugsnag-agent
@@ -27,7 +27,7 @@ $ curl http://127.0.0.1:3829
 Bugsnag agent: 127.0.0.1:3829 -> https://notify.bugsnag.com/ (0/1000)%
 ```
 
-Finally you need to configure the endpoint of your Bugsnag apps to be `http://localhost:3829`. This differs per [notifier](https://bugsnag.com/docs/notifiers), but for example PHP is:
+Finally you need to configure the endpoint of your Bugsnag apps to be `http://localhost:3829`. This differs per [notifier](https://docs.bugsnag.com/platforms/), but for example PHP is:
 
 ```php
 $bugsnag->setEndpoint("localhost:3829");
