@@ -198,7 +198,7 @@ class BugsnagAgent(object):
                     if logger.isEnabledFor(logging.DEBUG):
                         print_exception(*sys.exc_info())
                     sleep(5)
-                    self.enqueue(body)
+                    self.enqueue(body=body, headers=headers)
 
     def _thread(self, target):
         def run():
