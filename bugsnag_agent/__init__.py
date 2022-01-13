@@ -1,10 +1,24 @@
 import sys
-import urllib2
-from argparse import ArgumentParser
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from ConfigParser import RawConfigParser
-from Queue import Queue
-from thread import interrupt_main
+if sys.version_info[0] == 3:
+    import urllib
+    from argparse import ArgumentParser
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from configparser import RawConfigParser
+    from queue import Queue
+    from _thread import interrupt_main
+    from urllib.request import Request as url_request
+    from urllib.request import urlopen as url_open
+    from urllib.error import URLError as url_error
+else:
+    import urllib2 as urllib
+    from argparse import ArgumentParser
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+    from ConfigParser import RawConfigParser
+    from Queue import Queue
+    from thread import interrupt_main
+    from urllib2 import Request as url_request
+    from urllib2 import urlopen as url_open
+    from urllib2 import URLError as url_error
 from threading import Thread
 from time import sleep
 from traceback import print_exception
@@ -99,7 +113,7 @@ class BugsnagAgent(object):
                      "listen": config.get,
                      "log_level": config.get,
                      "ip": config.get}
-        for opt, _ in vars(args).iteritems():
+        for opt, _ in vars(args).items():
             if getattr(args, opt) is not None:
                 setattr(self, opt, getattr(args, opt))
             elif config.has_option('bugsnag', opt) and opt in conf_opts:
@@ -184,10 +198,10 @@ class BugsnagAgent(object):
             )
 
             try:
-                req = urllib2.Request(self.endpoint, body, headers)
-                res = urllib2.urlopen(req)
+                req = url_request(self.endpoint, body, headers)
+                res = url_open(req)
                 res.read()
-            except urllib2.URLError as e:
+            except url_error as e:
                 if hasattr(e, 'code') and e.code in (400, 500):
                     logger.warning('Bad response, removing report ({code}: {msg})'.format(
                         code=e.code,
@@ -268,7 +282,7 @@ class BugsnagHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-Length', len(response))
             self.end_headers()
-            self.wfile.write(response)
+            self.wfile.write(response.encode())
         except:
             logger.info('Client disconnected before waiting for response')
             print_exception(*sys.exc_info())
