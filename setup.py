@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bugsnag-agent',
-    version='1.2.1',
+    version='1.3.0',
     description='A forwarding agent for Bugsnag to minimize reporting impact',
     long_description=__doc__,
     url='https://github.com/bugsnag/bugsnag-agent',
