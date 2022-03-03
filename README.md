@@ -3,8 +3,6 @@ on-premise Bugsnag installation. It's used to avoid any latency impact that
 might occur if you need to make a call over the network in every exception
 handler.
 
-:warning: Please note that `bugsnag-agent` is compatible with Python 2.6-2.7 and 3.x
-
 ## Getting started
 
 First you need to install the `bugsnag-agent` binary, and make it executable on your server:
