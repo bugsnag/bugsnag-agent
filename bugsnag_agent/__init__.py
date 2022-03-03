@@ -1,24 +1,20 @@
 import sys
+
 if sys.version_info[0] == 3:
-    import urllib
-    from argparse import ArgumentParser
     from http.server import BaseHTTPRequestHandler, HTTPServer
     from configparser import RawConfigParser
     from queue import Queue
     from _thread import interrupt_main
-    from urllib.request import Request as url_request
-    from urllib.request import urlopen as url_open
-    from urllib.error import URLError as url_error
+    from urllib.request import Request, urlopen
+    from urllib.error import URLError
 else:
-    import urllib2 as urllib
-    from argparse import ArgumentParser
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
     from ConfigParser import RawConfigParser
     from Queue import Queue
     from thread import interrupt_main
-    from urllib2 import Request as url_request
-    from urllib2 import urlopen as url_open
-    from urllib2 import URLError as url_error
+    from urllib2 import Request, urlopen, URLError
+
+from argparse import ArgumentParser
 from threading import Thread
 from time import sleep
 from traceback import print_exception
@@ -198,10 +194,10 @@ class BugsnagAgent(object):
             )
 
             try:
-                req = url_request(self.endpoint, body, headers)
-                res = url_open(req)
+                req = Request(self.endpoint, body, headers)
+                res = urlopen(req)
                 res.read()
-            except url_error as e:
+            except URLError as e:
                 if hasattr(e, 'code') and e.code in (400, 500):
                     logger.warning('Bad response, removing report ({code}: {msg})'.format(
                         code=e.code,
