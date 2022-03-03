@@ -1,3 +1,17 @@
+## 1.3.0
+
+### Enhancements
+
+* Added support for Python 3
+  [#27](https://github.com/bugsnag/bugsnag-agent/pull/27)
+  [Birgir Haraldsson](https://github.com/bix0r)
+
+### Bug fixes
+
+* Include HTTP headers when retrying requests if an error is raised
+  [#27](https://github.com/bugsnag/bugsnag-agent/pull/27)
+  [Birgir Haraldsson](https://github.com/bix0r)
+
 ## 1.2.1
 
 ### Enhancements
